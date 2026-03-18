@@ -7,26 +7,35 @@ import kotlin.math.abs
 /**
  * Вычисляет sin(x) через ряд Маклорена:
  * sin(x) = Σ ((-1)^n * x^(2n+1)) / (2n+1)!
+ *
+ * @param eps граничная точность вычислений
  */
 class Sin(val eps: Double = 1e-15) : MathFunction {
 
-    override fun compute(x: Double): Double {
-        // NaN и ±Infinity — возвращаем NaN: sin не определён для таких значений
-        if (x.isNaN() || x.isInfinite()) return Double.NaN
+    init {
+        require(eps > 0) { "eps must be > 0" }
+    }
 
-        // Редукция аргумента: x = x mod 2π для стабильности
+    /**
+     * Вычисляет sin(x)
+     *
+     * @param x аргумент функции
+     * @return значение sin(x)
+     */
+    override fun compute(x: Double): Double {
+
+        if (x.isNaN() || x.isInfinite()) return Double.NaN
+        if (x == 0.0) return x
+
         val reducedX = reduceAngle(x)
 
-        // Вычисляем ряд
         var result = 0.0
-        var term = reducedX  // Первый член: x^1 / 1!
+        var term = reducedX
         var n = 0
 
         while (abs(term) > eps) {
             result += term
             n++
-            // Следующий член: (-1)^(n+1) * x^(2n+3) / (2n+3)!
-            // Используем Long для делителя, чтобы избежать переполнения Int при больших n
             term *= -reducedX * reducedX / ((2L * n) * (2L * n + 1)).toDouble()
         }
 
@@ -35,6 +44,9 @@ class Sin(val eps: Double = 1e-15) : MathFunction {
 
     /**
      * Приводит угол к диапазону [-π, π]
+     *
+     * @param x аргумент для приведения
+     * @return приведенное значение
      */
     private fun reduceAngle(x: Double): Double {
         val twoPi = 2 * PI

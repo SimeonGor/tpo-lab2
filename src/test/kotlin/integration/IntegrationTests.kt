@@ -15,9 +15,15 @@ import org.example.stubs.Log2Stub
 import org.example.stubs.Log3Stub
 import org.example.stubs.Log5Stub
 import org.example.stubs.Log10Stub
+import org.example.stubs.SecStub
+import org.example.stubs.CscStub
 import org.example.stubs.SinStub
+import org.example.stubs.TanStub
 import org.example.trig.Cos
+import org.example.trig.Csc
+import org.example.trig.Sec
 import org.example.trig.Sin
+import org.example.trig.Tan
 import org.example.trig.TrigSystem
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.ValueSource
@@ -37,7 +43,7 @@ import kotlin.test.assertTrue
  */
 class Stage0AllStubsTest {
     // SinStub имеет -0.5 → -0.4794..., CosStub имеет -0.5 → 0.8775...
-    private val trigSystem = TrigSystem(sin = SinStub(), cos = CosStub())
+    private val trigSystem = TrigSystem(sin = SinStub(), tan = TanStub(), sec = SecStub(), csc = CscStub())
 
     @Test
     fun testTrigSystemWithAllStubs() {
@@ -73,7 +79,7 @@ class Stage0AllStubsTest {
  */
 class Stage1StubSinRealCosTest {
     private val realSin = Sin()
-    private val trigSystem = TrigSystem(sin = SinStub(), cos = Cos(realSin))
+    private val trigSystem = TrigSystem(sin = SinStub(), tan = TanStub(), sec = SecStub(), csc = CscStub())
 
     @Test
     fun testTrigSystemStage1() {
@@ -101,7 +107,7 @@ class Stage1StubSinRealCosTest {
 
 class Stage2RealSinCosTest {
     private val realSin = Sin()
-    private val trigSystem = TrigSystem(sin = realSin, cos = Cos(realSin))
+    private val trigSystem = TrigSystem(sin = realSin, tan = TanStub(), sec = SecStub(), csc = CscStub())
 
     @ParameterizedTest(name = "Stage2 TrigSystem({0}) = 1.0")
     @ValueSource(doubles = [-0.1, -0.3, -0.5, -1.0, -PI / 4, -PI / 3])

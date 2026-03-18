@@ -3,6 +3,7 @@ package org.example.unit
 import org.example.trig.TrigSystem
 import org.example.log.LogSystem
 import org.example.SystemFunction
+import org.junit.jupiter.api.assertThrows
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.ValueSource
 import kotlin.math.PI
@@ -29,30 +30,70 @@ class TrigSystemTest {
 
     // ───── Недопустимые точки ─────
 
-    @Test
-    fun testTrigSystemThrowsAtZero() {
-        assertFailsWith<IllegalArgumentException> { trigSystem.compute(0.0) }
+    @ParameterizedTest
+    @ValueSource(doubles = [0.1, 1.0, 10.0, Double.NaN, Double.POSITIVE_INFINITY])
+    fun testTrigSystemDomainCheck(x: Double) {
+        val ex = assertThrows<IllegalArgumentException> {
+            trigSystem.compute(x)
+        }
+        assertEquals("TrigSystem определена только для x <= 0", ex.message)
     }
 
     @Test
-    fun testTrigSystemThrowsAtMinusPi() {
-        assertFailsWith<IllegalArgumentException> { trigSystem.compute(-PI) }
+    fun testTrigSystemNegativeInfinity() {
+        val ex = assertThrows<IllegalArgumentException> {
+            trigSystem.compute(Double.NEGATIVE_INFINITY)
+        }
+        assertEquals(
+            "TrigSystem: sin(x) не определён в точке x=-Infinity",
+            ex.message
+        )
+    }
+
+    @ParameterizedTest
+    @ValueSource(doubles = [0.0, -1e-13, -PI, -PI + 1e-13, -2 * PI, -2 * PI + 1e-13])
+    fun testTrigSystemTanCloseToZero(x: Double) {
+        val ex = assertThrows<IllegalArgumentException> {
+            trigSystem.compute(x)
+        }
+        assertEquals(
+            "TrigSystem: tan(x) близко к нулю в точке x=$x",
+            ex.message
+        )
+    }
+
+    @ParameterizedTest
+    @ValueSource(doubles = [-PI / 2, -3 * PI / 2])
+    fun testTrigSystemTanUndefined(x: Double) {
+        val ex = assertThrows<IllegalArgumentException> {
+            trigSystem.compute(x)
+        }
+        assertEquals(
+            "TrigSystem: tan(x) не определён в точке x=$x",
+            ex.message
+        )
+    }
+
+    @ParameterizedTest
+    @ValueSource(doubles = [-PI / 2 + 1e-13, -PI / 2 - 1e-13, -3 * PI / 2 + 1e-13, -3 * PI / 2 - 1e-13])
+    fun testTrigSystemNearTanUndefinedPoints(x: Double) {
+        val ex = assertThrows<IllegalArgumentException> {
+            trigSystem.compute(x)
+        }
+        assertEquals(
+            "TrigSystem: tan(x) не определён в точке x=$x",
+            ex.message
+        )
     }
 
     @Test
-    fun testTrigSystemThrowsAtMinusPiHalf() {
-        assertFailsWith<IllegalArgumentException> { trigSystem.compute(-PI / 2) }
-    }
-
-    @Test
-    fun testTrigSystemThrowsAtMinusTwoPi() {
-        assertFailsWith<IllegalArgumentException> { trigSystem.compute(-2 * PI) }
-    }
-
-    @Test
-    fun testTrigSystemRequiresNonPositiveX() {
-        assertFailsWith<IllegalArgumentException> { trigSystem.compute(1.0) }
-        assertFailsWith<IllegalArgumentException> { trigSystem.compute(0.001) }
+    fun testTrigSystemZeroToleranceMustBePositive() {
+        assertThrows<IllegalArgumentException> {
+            TrigSystem(zeroTolerance = 0.0)
+        }
+        assertThrows<IllegalArgumentException> {
+            TrigSystem(zeroTolerance = -1e-12)
+        }
     }
 }
 

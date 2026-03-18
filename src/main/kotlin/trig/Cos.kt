@@ -9,6 +9,7 @@ import kotlin.math.PI
 class Cos(val sin: Sin = Sin()) : MathFunction {
 
     override fun compute(x: Double): Double {
+        if (x.isNaN() || x.isInfinite()) return Double.NaN
         return sin.compute(PI / 2 - x)
     }
 }
