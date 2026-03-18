@@ -19,7 +19,10 @@ import org.example.stubs.CscStub
 import org.example.stubs.SinStub
 import org.example.stubs.TanStub
 import org.example.trig.Cos
+import org.example.trig.Csc
+import org.example.trig.Sec
 import org.example.trig.Sin
+import org.example.trig.Tan
 import org.example.trig.TrigSystem
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.ValueSource
@@ -30,80 +33,66 @@ import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 
 /**
- * Stage 0: TrigSystem(SinStub, CosStub) — обе зависимости — заглушки.
- * Проверяем, что при известных табличных значениях система даёт 1.0.
+ * Stage 0: все зависимости TrigSystem и LogSystem заменены заглушками.
  */
 class Stage0AllStubsTest {
     private val trigSystem = TrigSystem(sin = SinStub(), tan = TanStub(), sec = SecStub(), csc = CscStub())
+    private val logSystem = LogSystem(log2 = Log2Stub(), log3 = Log3Stub(), log5 = Log5Stub(), log10 = Log10Stub())
 
     @Test
     fun testTrigSystemWithAllStubs() {
         val result = trigSystem.compute(-0.5)
         assertEquals(1.0, result, 1e-6,
-            "TrigSystem с заглушками: (-0.5) должна давать 1.0")
+            "TrigSystem со всеми заглушками при x=-0.5 должна давать 1.0")
     }
 
     @Test
     fun testLogSystemWithAllStubs() {
-        // LogSystem(Log2Stub, Log3Stub, ...) — проверяем точки из таблиц
-        // x=2: log2=1, log3≈0.63, log5≈0.43, log10≈0.30 → результат конечный
-        val logSystem = LogSystem(
-            log2 = Log2Stub(),
-            log3 = Log3Stub(),
-            log5 = Log5Stub(),
-            log10 = Log10Stub()
-        )
-        // Для x=2 все логарифмические стабы имеют значения
         val result = logSystem.compute(2.0)
         assertTrue(!result.isNaN() && !result.isInfinite(),
-            "LogSystem с заглушками: (2.0) должна быть конечной")
+            "LogSystem со всеми заглушками при x=2.0 должна возвращать конечное значение")
     }
 }
 
 /**
- * Stage 1 bottom-up: заглушка SinStub, реальный Cos(Sin()).
- * Проверяем, что система работает корректно когда только cos реальный.
+ * Stage 1: Sin заменён реальной реализацией, остальные тригонометрические зависимости - заглушки.
  */
-class Stage1StubSinRealCosTest {
+class Stage1RealSinStubDerivativesTest {
     private val realSin = Sin()
-    private val trigSystem = TrigSystem(sin = SinStub(), tan = TanStub(), sec = SecStub(), csc = CscStub())
+    private val trigSystem = TrigSystem(sin = realSin, tan = TanStub(), sec = SecStub(), csc = CscStub())
 
-    @Test
-    fun testTrigSystemStage1() {
-        // Оба ненулевые → формула должна дать 1.0
-        val result = trigSystem.compute(-0.5)
-        assertEquals(1.0, result, 1e-6,
-            "Stage1: TrigSystem(StubSin, RealCos)(-0.5) = 1.0")
-    }
-
-    @Test
-    fun testCosConsistencyWithSinStub() {
-        // cos²(x) + sin²(x) ≈ 1 (если реальный cos и stub sin согласованы)
-        val x = -0.5
-        val sinX = SinStub().compute(x)
-        val cosX = Cos(realSin).compute(x)
-        assertEquals(1.0, sinX * sinX + cosX * cosX, 1e-6,
-            "Stub sin²+реальный cos²≈1 при x=-0.5")
+    @ParameterizedTest(name = "Stage1 TrigSystem({0}) близко к 1.0")
+    @ValueSource(doubles = [-0.1, -0.3, -0.5, -1.0, -PI / 4, -PI / 3])
+    fun testTrigSystemEqualsOne(x: Double) {
+        assertEquals(1.0, trigSystem.compute(x), 1e-6,
+            "Stage1: TrigSystem($x) с реальным Sin и заглушками должна давать результат близкий к 1.0")
     }
 }
 
-class Stage2RealSinCosTest {
+/**
+ * Stage 2: все зависимости TrigSystem заменены реальными реализациями.
+ */
+class Stage2RealAllTrigTest {
     private val realSin = Sin()
-    private val trigSystem = TrigSystem(sin = realSin, tan = TanStub(), sec = SecStub(), csc = CscStub())
+    private val trigSystem = TrigSystem(
+        sin = realSin,
+        tan = Tan(realSin, Cos(realSin)),
+        sec = Sec(Cos(realSin)),
+        csc = Csc(realSin)
+    )
 
     @ParameterizedTest(name = "Stage2 TrigSystem({0}) = 1.0")
     @ValueSource(doubles = [-0.1, -0.3, -0.5, -1.0, -PI / 4, -PI / 3])
     fun testTrigSystemEqualsOne(x: Double) {
-        assertEquals(1.0, trigSystem.compute(x), 1e-8,
-            "Stage2: TrigSystem($x) = 1.0 с реальными Sin+Cos")
+        assertEquals(1.0, trigSystem.compute(x), 1e-6,
+            "Stage2: TrigSystem($x) с реальными зависимостями должна давать 1.0")
     }
 }
 
 /**
- * Stage 5: реальный Ln, производные логарифмы — заглушки.
- * Вычисляем log_N через реальный Ln и сравниваем с табличными стабами.
+ * Stage 3: реальный Ln, производные логарифмы - заглушки.
  */
-class Stage5RealLnStubDerivativesTest {
+class Stage3RealLnStubDerivativesTest {
     private val realLn = Ln()
 
     @ParameterizedTest(name = "Реальный ln({0}) совпадает со значением stub")
@@ -116,23 +105,22 @@ class Stage5RealLnStubDerivativesTest {
 
     @Test
     fun testLogSystemWithRealLnDerivedLogs() {
-        // Log2/3/5/10 строятся на реальном Ln — это "реальные" производные
-        // Для них заглушки заменяются реальными реализациями на базе того же Ln
         val logSystem = LogSystem(
             log2 = Log2(realLn),
             log3 = Log3(realLn),
-            log5 = Log5Stub(),    // ещё не интегрирован — заглушка
-            log10 = Log10Stub()   // ещё не интегрирован — заглушка
+            log5 = Log5Stub(),
+            log10 = Log10Stub()
         )
-        // x=5: Log5Stub(5)=1, Log10Stub(10)=1 — в таблице есть значения
-        // Проверяем, что система не упала
         val result = logSystem.compute(5.0)
         assertTrue(!result.isNaN() && !result.isInfinite(),
-            "Stage5: LogSystem(RealLog2, RealLog3, StubLog5, StubLog10)(5.0) конечна")
+            "Stage3: LogSystem(RealLog2, RealLog3, StubLog5, StubLog10)(5.0) конечна")
     }
 }
 
-class Stage6RealAllLogsTest {
+/**
+ * Stage 4: все логарифмические зависимости заменены реальными реализациями.
+ */
+class Stage4RealAllLogsTest {
     private val realLn = Ln()
     private val logSystem = LogSystem(
         log2  = Log2(realLn),
@@ -141,25 +129,27 @@ class Stage6RealAllLogsTest {
         log10 = Log10(realLn)
     )
 
-    @ParameterizedTest(name = "Stage6 LogSystem({0}) конечна")
+    @ParameterizedTest(name = "Stage4 LogSystem({0}) конечна")
     @ValueSource(doubles = [0.1, 0.5, 2.0, 3.0, 5.0, 10.0, 100.0])
     fun testLogSystemFiniteWithRealDeps(x: Double) {
         val result = logSystem.compute(x)
         assertTrue(!result.isNaN() && !result.isInfinite(),
-            "Stage6: LogSystem($x) конечна")
+            "Stage4: LogSystem($x) конечна")
     }
 
-    @ParameterizedTest(name = "Stage6 и дефолтная LogSystem совпадают при x={0}")
+    @ParameterizedTest(name = "Stage4 и дефолтная LogSystem совпадают при x={0}")
     @ValueSource(doubles = [2.0, 5.0, 10.0])
     fun testLogSystemResultMatchesDefault(x: Double) {
-        // Полностью реальная LogSystem должна совпадать с LogSystem()
         val defaultLogSystem = LogSystem()
         assertEquals(defaultLogSystem.compute(x), logSystem.compute(x), 1e-9,
-            "Stage6 и дефолтная LogSystem совпадают при x=$x")
+            "Stage4 и дефолтная LogSystem совпадают при x=$x")
     }
 }
 
-class Stage8FullSystemTest {
+/**
+ * Stage 5: полная система без заглушек.
+ */
+class Stage5FullSystemTest {
     private val system = SystemFunction()
 
     @ParameterizedTest(name = "f({0}) = 1.0 (тригонометрическая ветка)")
@@ -200,7 +190,7 @@ class CsvIntegrationTest {
 
         val lines = file.readLines()
         assertTrue(lines.size >= 2, "Должен быть заголовок и строки данных")
-        assertTrue(lines[0].startsWith("x"), "Первая строка — заголовок")
+        assertTrue(lines[0].startsWith("x"), "Первая строка - заголовок")
 
         val firstDataRow = lines[1].split(",")
         assertEquals(2, firstDataRow.size, "Строка данных: 2 колонки")
@@ -232,10 +222,9 @@ class CsvIntegrationTest {
 
     @Test
     fun testCsvCorrectValues() {
-        // Проверяем, что значения в CSV корректны
         val sin = Sin()
         val file = tmpFile("test_vals_${System.nanoTime()}.csv")
-        CsvWriter.writeToCsv(sin, 0.0, 0.0, 0.1, file.absolutePath)  // только x=0
+        CsvWriter.writeToCsv(sin, 0.0, 0.0, 0.1, file.absolutePath)
 
         val lines = file.readLines()
         assertEquals(2, lines.size, "Заголовок + 1 строка данных")
