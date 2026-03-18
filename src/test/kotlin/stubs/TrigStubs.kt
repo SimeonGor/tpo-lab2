@@ -1,12 +1,18 @@
 package org.example.stubs
 
 import org.example.MathFunction
+import org.example.trig.CosFunction
+import org.example.trig.CscFunction
+import org.example.trig.SecFunction
+import org.example.trig.SinFunction
+import org.example.trig.TanFunction
 import kotlin.math.PI
+import kotlin.math.abs
 
 /**
  * Заглушка для Sin с табличными значениями
  */
-class SinStub : MathFunction {
+class SinStub : SinFunction {
     // Таблица предопределённых значений
     private val table = mapOf(
         0.0 to 0.0,
@@ -30,7 +36,7 @@ class SinStub : MathFunction {
 /**
  * Заглушка для Cos
  */
-class CosStub : MathFunction {
+class CosStub : CosFunction {
     private val table = mapOf(
         0.0 to 1.0,
         PI / 6 to 0.8660254037844387,
@@ -53,7 +59,7 @@ class CosStub : MathFunction {
 /**
  * Заглушка для Sec
  */
-class SecStub : MathFunction {
+class SecStub : SecFunction {
     private val table = mapOf(
         0.0 to 1.0,
         PI / 3 to 2.0,
@@ -68,7 +74,7 @@ class SecStub : MathFunction {
 /**
  * Заглушка для Csc
  */
-class CscStub : MathFunction {
+class CscStub : CscFunction {
     private val table = mapOf(
         PI / 6 to 2.0,
         PI / 2 to 1.0,
@@ -83,7 +89,7 @@ class CscStub : MathFunction {
 /**
  * Заглушка для Tan
  */
-class TanStub : MathFunction {
+class TanStub : TanFunction {
     private val table = mapOf(
         0.0 to 0.0,
         PI / 6 to 0.5773502691896257,
@@ -109,7 +115,7 @@ class TrigSystemStub : MathFunction {
     override fun compute(x: Double): Double {
         require(x <= 0) { "TrigSystemStub определена только для x <= 0" }
         for (p in undefinedPoints) {
-            if (kotlin.math.abs(x - p) < 1e-14)
+            if (abs(x - p) < 1e-14)
                 throw IllegalArgumentException("TrigSystemStub: недопустимая точка x=$x")
         }
         return 1.0

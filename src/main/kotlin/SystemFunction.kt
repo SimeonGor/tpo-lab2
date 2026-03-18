@@ -6,7 +6,7 @@ import org.example.trig.TrigSystem
 /**
  * Главная система функций с маршрутизацией по x
  * x <= 0: тригонометрическая ветка
- * x > 0:  логарифмическая ветка
+ * x > 0: логарифмическая ветка
  */
 class SystemFunction(
     val trigSystem: TrigSystem = TrigSystem(),

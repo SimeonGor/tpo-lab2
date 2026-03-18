@@ -3,10 +3,16 @@ package org.example.trig
 import org.example.MathFunction
 import kotlin.math.abs
 
+interface TanFunction : MathFunction
+
 /**
  * Вычисляет tan(x) = sin(x)/cos(x)
  */
-class Tan(val sin: Sin = Sin(), val cos: Cos = Cos(), val zeroTolerance: Double = 1e-12) : MathFunction {
+class Tan(
+    val sin: SinFunction = Sin(),
+    val cos: CosFunction = Cos(),
+    val zeroTolerance: Double = 1e-12
+) : TanFunction {
 
     init {
         require(zeroTolerance > 0) { "zeroTolerance must be > 0" }

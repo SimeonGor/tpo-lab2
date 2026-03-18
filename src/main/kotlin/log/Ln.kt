@@ -3,6 +3,8 @@ package org.example.log
 import org.example.MathFunction
 import kotlin.math.abs
 
+interface LnFunction : MathFunction
+
 /**
  * Вычисляет натуральный логарифм ln(x) через ряд artanh:
  * ln(x) = 2 * Σ ((x-1)/(x+1))^(2n+1) / (2n+1)
@@ -14,7 +16,7 @@ import kotlin.math.abs
  *
  * @param eps граничная точность вычислений
  */
-class Ln(val eps: Double = 1e-15) : MathFunction {
+class Ln(val eps: Double = 1e-15) : LnFunction {
 
     init {
         require(eps > 0) { "eps must be > 0" }

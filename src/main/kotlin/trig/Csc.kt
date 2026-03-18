@@ -3,10 +3,12 @@ package org.example.trig
 import org.example.MathFunction
 import kotlin.math.abs
 
+interface CscFunction : MathFunction
+
 /**
  * Вычисляет csc(x) = 1/sin(x)
  */
-class Csc(val sin: Sin = Sin(), val zeroTolerance: Double = 1e-12) : MathFunction {
+class Csc(val sin: SinFunction = Sin(), val zeroTolerance: Double = 1e-12) : CscFunction {
 
     init {
         require(zeroTolerance > 0) { "zeroTolerance must be > 0" }

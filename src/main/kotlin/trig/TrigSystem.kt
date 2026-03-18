@@ -7,17 +7,12 @@ import kotlin.math.sqrt
 /**
  * Система функций для x <= 0:
  * (((((sec(x) + sec(x)) / tan(x)) - csc(x)) * sin(x)) ^ 2)
- *
- * sin и cos принимаются как MathFunction, что позволяет подставлять
- * как реальные реализации, так и заглушки (стабы) при интеграционном тестировании.
- * Производные значения (sec, csc, tan) вычисляются из sinX/cosX без повторного
- * вызова ряда разложения.
  */
 class TrigSystem(
-    val sin: MathFunction = Sin(),
-    val tan: MathFunction = Tan(),
-    val sec: MathFunction = Sec(),
-    val csc: MathFunction = Csc(),
+    val sin: SinFunction = Sin(),
+    val tan: TanFunction = Tan(),
+    val sec: SecFunction = Sec(),
+    val csc: CscFunction = Csc(),
     val zeroTolerance: Double = 1e-12
 ) : MathFunction {
 

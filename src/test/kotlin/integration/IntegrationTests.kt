@@ -9,7 +9,6 @@ import org.example.log.Log3
 import org.example.log.Log5
 import org.example.log.Log10
 import org.example.log.LogSystem
-import org.example.stubs.CosStub
 import org.example.stubs.LnStub
 import org.example.stubs.Log2Stub
 import org.example.stubs.Log3Stub
@@ -20,10 +19,7 @@ import org.example.stubs.CscStub
 import org.example.stubs.SinStub
 import org.example.stubs.TanStub
 import org.example.trig.Cos
-import org.example.trig.Csc
-import org.example.trig.Sec
 import org.example.trig.Sin
-import org.example.trig.Tan
 import org.example.trig.TrigSystem
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.ValueSource
@@ -33,16 +29,11 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 
-// ═══════════════════════════════════════════════════════════════════
-// Stage 0: все заглушки — базовая линия поведения системы
-// ═══════════════════════════════════════════════════════════════════
-
 /**
  * Stage 0: TrigSystem(SinStub, CosStub) — обе зависимости — заглушки.
  * Проверяем, что при известных табличных значениях система даёт 1.0.
  */
 class Stage0AllStubsTest {
-    // SinStub имеет -0.5 → -0.4794..., CosStub имеет -0.5 → 0.8775...
     private val trigSystem = TrigSystem(sin = SinStub(), tan = TanStub(), sec = SecStub(), csc = CscStub())
 
     @Test
@@ -69,10 +60,6 @@ class Stage0AllStubsTest {
     }
 }
 
-// ═══════════════════════════════════════════════════════════════════
-// Stage 1: РЕАЛЬНЫЙ Sin + заглушка для Cos → TrigSystem
-// ═══════════════════════════════════════════════════════════════════
-
 /**
  * Stage 1 bottom-up: заглушка SinStub, реальный Cos(Sin()).
  * Проверяем, что система работает корректно когда только cos реальный.
@@ -83,7 +70,6 @@ class Stage1StubSinRealCosTest {
 
     @Test
     fun testTrigSystemStage1() {
-        // x = -0.5: SinStub(-0.5) ≈ -0.4794, CosReal(-0.5) ≈ 0.8775
         // Оба ненулевые → формула должна дать 1.0
         val result = trigSystem.compute(-0.5)
         assertEquals(1.0, result, 1e-6,
@@ -101,10 +87,6 @@ class Stage1StubSinRealCosTest {
     }
 }
 
-// ═══════════════════════════════════════════════════════════════════
-// Stage 2: РЕАЛЬНЫЕ Sin + Cos → TrigSystem
-// ═══════════════════════════════════════════════════════════════════
-
 class Stage2RealSinCosTest {
     private val realSin = Sin()
     private val trigSystem = TrigSystem(sin = realSin, tan = TanStub(), sec = SecStub(), csc = CscStub())
@@ -116,10 +98,6 @@ class Stage2RealSinCosTest {
             "Stage2: TrigSystem($x) = 1.0 с реальными Sin+Cos")
     }
 }
-
-// ═══════════════════════════════════════════════════════════════════
-// Stage 5: РЕАЛЬНЫЙ Ln + заглушки Log2/3/5/10 → LogSystem
-// ═══════════════════════════════════════════════════════════════════
 
 /**
  * Stage 5: реальный Ln, производные логарифмы — заглушки.
@@ -154,10 +132,6 @@ class Stage5RealLnStubDerivativesTest {
     }
 }
 
-// ═══════════════════════════════════════════════════════════════════
-// Stage 6: РЕАЛЬНЫЕ Log2, Log3, Log5, Log10 → LogSystem
-// ═══════════════════════════════════════════════════════════════════
-
 class Stage6RealAllLogsTest {
     private val realLn = Ln()
     private val logSystem = LogSystem(
@@ -185,10 +159,6 @@ class Stage6RealAllLogsTest {
     }
 }
 
-// ═══════════════════════════════════════════════════════════════════
-// Stage 8: Полная система
-// ═══════════════════════════════════════════════════════════════════
-
 class Stage8FullSystemTest {
     private val system = SystemFunction()
 
@@ -213,10 +183,6 @@ class Stage8FullSystemTest {
             "SystemFunction($x) совпадает с LogSystem($x)")
     }
 }
-
-// ═══════════════════════════════════════════════════════════════════
-// CSV тесты — файлы в tmpdir
-// ═══════════════════════════════════════════════════════════════════
 
 class CsvIntegrationTest {
 

@@ -3,10 +3,12 @@ package org.example.trig
 import org.example.MathFunction
 import kotlin.math.abs
 
+interface SecFunction : MathFunction
+
 /**
  * Вычисляет sec(x) = 1/cos(x)
  */
-class Sec(val cos: Cos = Cos(), val zeroTolerance: Double = 1e-12) : MathFunction {
+class Sec(val cos: CosFunction = Cos(), val zeroTolerance: Double = 1e-12) : SecFunction {
 
     init {
         require(zeroTolerance > 0) { "zeroTolerance must be > 0" }

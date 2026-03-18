@@ -1,12 +1,17 @@
 package org.example.stubs
 
 import org.example.MathFunction
+import org.example.log.LnFunction
+import org.example.log.Log2Function
+import org.example.log.Log3Function
+import org.example.log.Log5Function
+import org.example.log.Log10Function
 import kotlin.math.E
 
 /**
  * Заглушка для Ln
  */
-class LnStub : MathFunction {
+class LnStub : LnFunction {
     private val table = mapOf(
         1.0 to 0.0,
         E to 1.0,
@@ -27,7 +32,7 @@ class LnStub : MathFunction {
 /**
  * Заглушка для Log2
  */
-class Log2Stub : MathFunction {
+class Log2Stub : Log2Function {
     private val table = mapOf(
         1.0 to 0.0,
         2.0 to 1.0,
@@ -47,7 +52,7 @@ class Log2Stub : MathFunction {
 /**
  * Заглушка для Log3
  */
-class Log3Stub : MathFunction {
+class Log3Stub : Log3Function {
     private val table = mapOf(
         1.0 to 0.0,
         2.0 to 0.6309297535714573,   // ln(2)/ln(3)
@@ -66,7 +71,7 @@ class Log3Stub : MathFunction {
 /**
  * Заглушка для Log5
  */
-class Log5Stub : MathFunction {
+class Log5Stub : Log5Function {
     private val table = mapOf(
         1.0 to 0.0,
         2.0 to 0.43067655807339306,  // ln(2)/ln(5)
@@ -85,7 +90,7 @@ class Log5Stub : MathFunction {
 /**
  * Заглушка для Log10
  */
-class Log10Stub : MathFunction {
+class Log10Stub : Log10Function {
     private val table = mapOf(
         1.0 to 0.0,
         2.0 to 0.3010299957316877,   // log10(2)

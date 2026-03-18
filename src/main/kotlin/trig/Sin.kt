@@ -4,13 +4,15 @@ import org.example.MathFunction
 import kotlin.math.PI
 import kotlin.math.abs
 
+interface SinFunction : MathFunction
+
 /**
  * Вычисляет sin(x) через ряд Маклорена:
  * sin(x) = Σ ((-1)^n * x^(2n+1)) / (2n+1)!
  *
  * @param eps граничная точность вычислений
  */
-class Sin(val eps: Double = 1e-15) : MathFunction {
+class Sin(val eps: Double = 1e-15) : SinFunction {
 
     init {
         require(eps > 0) { "eps must be > 0" }

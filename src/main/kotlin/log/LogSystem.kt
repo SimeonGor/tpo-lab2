@@ -7,15 +7,12 @@ import kotlin.math.abs
  * Система функций для x > 0, x != 1:
  * (((((log_3(x) ^ 3) + log_2(x)) ^ 3) / log_5(x)) /
  *  ((log_3(x) * log_5(x)) + ((log_5(x) + log_3(x)) / (log_10(x) ^ 2))))
- *
- * Все логарифмы принимаются как MathFunction, что позволяет подставлять
- * как реальные реализации, так и заглушки при интеграционном тестировании.
  */
 class LogSystem(
-    val log2: MathFunction = Log2(),
-    val log3: MathFunction = Log3(),
-    val log5: MathFunction = Log5(),
-    val log10: MathFunction = Log10(),
+    val log2: Log2Function = Log2(),
+    val log3: Log3Function = Log3(),
+    val log5: Log5Function = Log5(),
+    val log10: Log10Function = Log10(),
     val zeroTolerance: Double = 1e-12
 ) : MathFunction {
 
