@@ -15,12 +15,18 @@ class LogSystem(
     val log2: MathFunction = Log2(),
     val log3: MathFunction = Log3(),
     val log5: MathFunction = Log5(),
-    val log10: MathFunction = Log10()
+    val log10: MathFunction = Log10(),
+    val zeroTolerance: Double = 1e-12
 ) : MathFunction {
+
+    init {
+        require(zeroTolerance > 0) { "zeroTolerance must be > 0" }
+    }
 
     override fun compute(x: Double): Double {
         require(x > 0) { "LogSystem определена только для x > 0" }
-        require(abs(x - 1.0) > 1e-14) { "LogSystem не определена в точке x = 1" }
+        if (x.isInfinite()) return Double.NaN
+        require(abs(x - 1.0) > zeroTolerance) { "LogSystem не определена в точке x = 1" }
 
         val log2X = log2.compute(x)
         val log3X = log3.compute(x)
@@ -40,7 +46,7 @@ class LogSystem(
         val secondPart = (log5X + log3X) / log10Squared
         val denominator = log3X * log5X + secondPart
 
-        if (abs(denominator) < 1e-14) {
+        if (abs(denominator) < zeroTolerance) {
             throw IllegalArgumentException("LogSystem: знаменатель близко к нулю в точке x=$x")
         }
 

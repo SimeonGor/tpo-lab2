@@ -1,7 +1,9 @@
 package org.example.unit
 
 import org.example.log.Ln
+import org.junit.jupiter.api.assertThrows
 import org.junit.jupiter.params.ParameterizedTest
+import org.junit.jupiter.params.provider.CsvFileSource
 import org.junit.jupiter.params.provider.CsvSource
 import org.junit.jupiter.params.provider.ValueSource
 import kotlin.math.E
@@ -32,6 +34,16 @@ class LnTest {
                              100.0, 1000.0, 1e6, 1e9, 1e12])
     fun testMatchesMathLog(x: Double) {
         assertEquals(Math.log(x), ln.compute(x), tolerance)
+    }
+
+    @ParameterizedTest(name = "ln({0}) ~= {1}")
+    @CsvFileSource(
+        resources = ["/ln.csv"],
+        numLinesToSkip = 0,
+        delimiter = ';'
+    )
+    fun testLnFromCsv(x: Double, expected: Double) {
+        assertEquals(expected, ln.compute(x), tolerance)
     }
 
     // ───── ln(a*b) = ln(a) + ln(b) ─────
@@ -75,14 +87,47 @@ class LnTest {
 
     // ───── Обработка ошибок ─────
 
-    @Test
-    fun testLnZeroThrows() {
-        assertFailsWith<IllegalArgumentException> { ln.compute(0.0) }
+    @ParameterizedTest(name = "ln({0}) бросает исключение (x <= 0)")
+    @ValueSource(doubles = [0.0, -0.001, -1.0, -100.0])
+    fun testLnInvalidDomain(x: Double) {
+        val ex = assertThrows<IllegalArgumentException> {
+            ln.compute(x)
+        }
+        assertEquals("ln(x) не определен для x <= 0", ex.message)
     }
 
-    @ParameterizedTest(name = "ln({0}) бросает исключение (x <= 0)")
-    @ValueSource(doubles = [-0.001, -1.0, -100.0])
-    fun testLnNegativeThrows(x: Double) {
-        assertFailsWith<IllegalArgumentException> { ln.compute(x) }
+    @Test
+    fun testLnNaN() {
+        val ex = assertThrows<IllegalArgumentException> {
+            ln.compute(Double.NaN)
+        }
+        assertEquals("ln(x) не определен для x <= 0", ex.message)
+    }
+
+    @Test
+    fun testLnPositiveInfinity() {
+        assertTrue(ln.compute(Double.POSITIVE_INFINITY).isNaN())
+    }
+
+    @Test
+    fun testLnNegativeInfinity() {
+        val ex = assertThrows<IllegalArgumentException> {
+            ln.compute(Double.NEGATIVE_INFINITY)
+        }
+        assertEquals("ln(x) не определен для x <= 0", ex.message)
+    }
+
+    @Test
+    fun testLnNegativeEps() {
+        assertThrows<IllegalArgumentException> {
+            Ln(eps = -1e-15)
+        }
+    }
+
+    @Test
+    fun testLnZeroEps() {
+        assertThrows<IllegalArgumentException> {
+            Ln(eps = 0.0)
+        }
     }
 }

@@ -11,14 +11,21 @@ import kotlin.math.abs
  * редукция аргумента: x = reduced * 2^exponent,
  * где reduced ∈ (0.5, 2.0], а ln(x) = ln(reduced) + exponent * ln(2).
  * ln(2) вычисляется тем же рядом для y = 1/3 (быстрая сходимость).
+ *
+ * @param eps граничная точность вычислений
  */
 class Ln(val eps: Double = 1e-15) : MathFunction {
+
+    init {
+        require(eps > 0) { "eps must be > 0" }
+    }
 
     // ln(2) вычисляется один раз при инициализации через ряд с y=1/3
     private val ln2: Double by lazy { artanh(2.0) }
 
     override fun compute(x: Double): Double {
         require(x > 0) { "ln(x) не определен для x <= 0" }
+        if (x.isNaN() || x.isInfinite()) return Double.NaN
         if (x == 1.0) return 0.0
 
         // Редукция аргумента: приводим x к диапазону (0.5, 2.0]

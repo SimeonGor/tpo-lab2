@@ -123,6 +123,29 @@ class LogSystemTest {
         assertFailsWith<IllegalArgumentException> { logSystem.compute(-1.0) }
         assertFailsWith<IllegalArgumentException> { logSystem.compute(-0.5) }
     }
+
+    @Test
+    fun testLogSystemPositiveInfinity() {
+        assertTrue(logSystem.compute(Double.POSITIVE_INFINITY).isNaN())
+    }
+
+    @Test
+    fun testLogSystemNegativeInfinity() {
+        val ex = assertThrows<IllegalArgumentException> {
+            logSystem.compute(Double.NEGATIVE_INFINITY)
+        }
+        assertEquals("LogSystem определена только для x > 0", ex.message)
+    }
+
+    @Test
+    fun testLogSystemZeroToleranceMustBePositive() {
+        assertThrows<IllegalArgumentException> {
+            LogSystem(zeroTolerance = 0.0)
+        }
+        assertThrows<IllegalArgumentException> {
+            LogSystem(zeroTolerance = -1e-12)
+        }
+    }
 }
 
 class SystemFunctionTest {
@@ -167,5 +190,10 @@ class SystemFunctionTest {
     @Test
     fun testThrowsAtMinusPi() {
         assertFailsWith<IllegalArgumentException> { system.compute(-PI) }
+    }
+
+    @Test
+    fun testSystemFunctionPositiveInfinityUsesLogBranch() {
+        assertTrue(system.compute(Double.POSITIVE_INFINITY).isNaN())
     }
 }

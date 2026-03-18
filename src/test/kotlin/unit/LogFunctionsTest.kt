@@ -26,6 +26,16 @@ class Log2Test {
         val expected = Math.log(x) / Math.log(2.0)
         assertEquals(expected, log2.compute(x), tolerance, "log2($x)")
     }
+
+    @Test
+    fun testLog2PositiveInfinity() {
+        assertTrue(log2.compute(Double.POSITIVE_INFINITY).isNaN())
+    }
+
+    @Test
+    fun testLog2NegativeInfinity() {
+        assertTrue(log2.compute(Double.NEGATIVE_INFINITY).isNaN())
+    }
 }
 
 class Log3Test {
@@ -42,6 +52,16 @@ class Log3Test {
     fun testMatchesMathLog3(x: Double) {
         val expected = Math.log(x) / Math.log(3.0)
         assertEquals(expected, log3.compute(x), tolerance, "log3($x)")
+    }
+
+    @Test
+    fun testLog3PositiveInfinity() {
+        assertTrue(log3.compute(Double.POSITIVE_INFINITY).isNaN())
+    }
+
+    @Test
+    fun testLog3NegativeInfinity() {
+        assertTrue(log3.compute(Double.NEGATIVE_INFINITY).isNaN())
     }
 }
 
@@ -60,6 +80,16 @@ class Log5Test {
         val expected = Math.log(x) / Math.log(5.0)
         assertEquals(expected, log5.compute(x), tolerance, "log5($x)")
     }
+
+    @Test
+    fun testLog5PositiveInfinity() {
+        assertTrue(log5.compute(Double.POSITIVE_INFINITY).isNaN())
+    }
+
+    @Test
+    fun testLog5NegativeInfinity() {
+        assertTrue(log5.compute(Double.NEGATIVE_INFINITY).isNaN())
+    }
 }
 
 class Log10Test {
@@ -76,5 +106,15 @@ class Log10Test {
     @ValueSource(doubles = [0.001, 0.01, 0.1, 0.5, 1.0, 2.0, 5.0, 10.0, 100.0, 10000.0])
     fun testMatchesMathLog10(x: Double) {
         assertEquals(Math.log10(x), log10.compute(x), tolerance, "log10($x)")
+    }
+
+    @Test
+    fun testLog10PositiveInfinity() {
+        assertTrue(log10.compute(Double.POSITIVE_INFINITY).isNaN())
+    }
+
+    @Test
+    fun testLog10NegativeInfinity() {
+        assertTrue(log10.compute(Double.NEGATIVE_INFINITY).isNaN())
     }
 }
