@@ -1,6 +1,7 @@
 plugins {
     kotlin("jvm") version "2.2.20"
     jacoco
+    application
 }
 
 group = "org.example"
@@ -18,6 +19,9 @@ dependencies {
 
     // Kotlin test
     testImplementation(kotlin("test"))
+
+    // Графики
+    implementation("org.knowm.xchart:xchart:3.8.8")
 }
 
 tasks.test {
@@ -35,4 +39,14 @@ tasks.jacocoTestReport {
 
 kotlin {
     jvmToolchain(17)
+}
+
+application {
+    mainClass.set("org.example.MainKt")
+}
+
+tasks.register<JavaExec>("plotCsv") {
+    group = "application"
+    classpath = sourceSets["main"].runtimeClasspath
+    mainClass.set("org.example.PlotCsv")
 }
